@@ -1,6 +1,7 @@
-# Sample Hardhat Project
+# Genshin Gacha simulator x blockchain
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This project utilizes the immuable properties of blockchain and verifable random numbers from Chainlink to deliver a verifably random, tamper proof gacha experience.
+
 
 Try running some of the following tasks:
 
