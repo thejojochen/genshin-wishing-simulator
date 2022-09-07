@@ -1,10 +1,12 @@
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const VRF_CONTRACT_ADDRESS = process.env.VRF_CONTRACT_ADDRESS;
+const WISH_CONTRACT_ADDRESS = process.env.WISH_CONTRACT_ADDRESS;
 
 const { providers } = require("ethers");
 const { ethers } = require("hardhat");
-const contract = require("../artifacts/contracts/VRFv2Consumer.sol/VRFv2Consumer.json");
+const vrfContractABI = require("../artifacts/contracts/VRFv2Consumer.sol/VRFv2Consumer.json");
+const wishABI = require("../artifacts/contracts/Wish.sol/Wish.json");
 
 //console.log(JSON.stringify(contract.abi));
 
@@ -17,8 +19,18 @@ const alchemyProvider = new ethers.providers.AlchemyProvider(
 // Signer
 const signer = new ethers.Wallet(PRIVATE_KEY, alchemyProvider);
 
-// Contract
-const vrfContract = new ethers.Contract(CONTRACT_ADDRESS, contract.abi, signer);
+// Contracts
+const vrfContract = new ethers.Contract(
+  VRF_CONTRACT_ADDRESS,
+  vrfContractABI.abi,
+  signer
+);
+const wishContract = new ethers.Contract(
+  WISH_CONTRACT_ADDRESS,
+  wishABI.abi,
+  signer
+);
+
 const maxRange = 100000;
 
 const myWallet = new ethers.Wallet(PRIVATE_KEY, alchemyProvider);
@@ -26,8 +38,11 @@ console.log(myWallet.address);
 //constContractConnected = vrfContract.connect(provider.getSigner[x]);
 
 async function main() {
-  console.log("starting process");
+  /*console.log("starting process");
 
+ ////////////////////////////////////////////////
+ // generate random number
+ ////////////////////////////////////////////////
   const transactionResponse = await vrfContract.requestRandomWords();
   console.log(transactionResponse);
   const receipt = await transactionResponse.wait(8);
@@ -37,6 +52,28 @@ async function main() {
   const result = await vrfContract.s_randomWords(0);
 
   console.log("The result is: " + result);
+  */
+
+  /////////////////////////////////////////
+  // Wishing Interactions /////////////////
+  /////////////////////////////////////////
+
+  console.log(wishContract.address);
+
+  /////////////////////////////////////////
+  // Add Items to List ////////////////////
+  /////////////////////////////////////////
+
+  await wishContract.createThreeStarItem("weapon", "magic_guide", 3);
+  console.log("successful creation of three star item");
+
+  let createcount = await wishContract.getThreeStarListLength();
+  console.log(createcount);
+  for (let i = 0; i < createcount; i++) {
+    console.log(await wishContract.viewThreeStarItemList(i));
+  }
+
+  //console.log(await wishContract.viewThreeStarItemList(0));
 }
 
 main()

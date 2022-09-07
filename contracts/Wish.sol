@@ -51,6 +51,16 @@ contract Wish {
         threeStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
     }
 
+    function viewThreeStarItemList(uint256 index)
+        public
+        view
+        returns (string memory)
+    {
+        Item memory temp = threeStarListOfItems[index];
+        string memory name = temp.name;
+        return name;
+    }
+
     function createFeaturedFourStarItem(
         string memory weaponOrCharacter,
         string memory name,
