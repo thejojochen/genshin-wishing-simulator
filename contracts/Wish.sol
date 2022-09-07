@@ -27,7 +27,7 @@ contract Wish {
     Item public featuredFiveStar = Item("g", "g", 5); //make sure to add functionality for a second banner
 
     //uint256 randomNumber = 5800;
-    //make sure to add functionality for a second banner
+    //make sure to add functionality for a second banner/
 
     //player specific variables
     uint256 public fiveStarWishCounter = 0;
