@@ -39,13 +39,11 @@ contract genshinCharacterFactory is ERC721 {
             "https://ipfs.io/ipfs/QmbmR2xpe4NT7JPpiXZFLSL7dbJzDQDgK6BRiMDrr43Acb";
     }
 
-    function mint(
-        address to,
-        uint256 tokenId,
-        uint256 URIIndex
-    ) public {
-        _mint(to, tokenId);
-        tokenIdToURI[tokenId] = URIs[URIIndex];
+    function mint(address to, uint256 URIIndex) public {
+        uint256 _tokenId = tokenIdCounter;
+        _mint(to, _tokenId);
+        tokenIdToURI[_tokenId] = URIs[URIIndex];
+        tokenIdCounter = tokenIdCounter + 1;
     }
 
     function mintRandomItem(
@@ -53,10 +51,12 @@ contract genshinCharacterFactory is ERC721 {
         address _to,
         uint256 _randomNumber
     ) public {
-        uint256 _URIIndex = getTheIndex(rarityArray, _randomNumber);
-        uint256 _tokenId = tokenIdCounter;
-        mint(_to, _tokenId, _URIIndex);
-        tokenIdCounter = tokenIdCounter + 1;
+        uint256 _moddedIndex = getTheIndex(rarityArray, _randomNumber);
+        mint(_to, _moddedIndex);
+    }
+
+    function mintFeaturedFiveStar(address _to, uint256 _URIIndex) public {
+        mint(_to, _URIIndex);
     }
 
     //pseudocode for now
@@ -67,7 +67,8 @@ contract genshinCharacterFactory is ERC721 {
     {
         uint256 randomNumber = _randomNumber; //requestRandomWords()
         uint256 moddedNumber = (randomNumber % targetArr.length) + 0;
-        return moddedNumber;
+        uint256 moddedIndex = targetArr[moddedNumber];
+        return moddedIndex;
     }
 
     // function condensedFunction(uint256 randomNumber, int[] targetArr, address _to) public {

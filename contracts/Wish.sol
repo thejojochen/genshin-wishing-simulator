@@ -5,8 +5,10 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "./VRFv2Consumer.sol";
+import "./genshinCharacterFactory.sol";
 
 //wish object, three parameters (kind of a generic name (item) though)
+/*is VRFv2Consumer*/
 contract Wish {
     struct Item {
         string weaponOrCharacter;
@@ -32,17 +34,22 @@ contract Wish {
     //player specific variables
     uint256 public fiveStarWishCounter = 0;
     uint256 public fourStarWishCounter = 0;
+    //bools potentially less gas effecient
     bool public fiveStarFiftyFifty = false;
     bool public fourStarFiftyFifty = false;
     uint256 public playerPrimogemAmount = 160;
     Item[] public itemsWon;
 
     //target VRF consumer
-    VRFv2Consumer public targetContract;
+    //VRFv2Consumer public targetVrfContract;
 
-    //intialize VRF consumer
-    constructor(address _targetAddr) {
-        targetContract = VRFv2Consumer(_targetAddr);
+    //target factory
+    genshinCharacterFactory public targetFactory =
+        genshinCharacterFactory(0xdC8468BF0d020587E4a010D886b6B96CE59c88f8);
+
+    //intialize VRF consumer (probably not, we will inherit from vrfv2consumer)
+    constructor(address _factoryAddr) {
+        targetFactory = genshinCharacterFactory(_factoryAddr);
     }
 
     ///////////////////////////////////////////
@@ -103,39 +110,60 @@ contract Wish {
         fiveStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
     }
 
-    function getRandomNumber() public view returns (uint256) {
-        return targetContract.s_randomWords(0);
-    }
+    // function getRandomNumber() public view returns (uint256) {
+    //     return targetContract.s_randomWords(0);
+    // }
 
-    function executeWishLogic(uint256 _randomNumber) public {
-        require(_randomNumber >= 1 && _randomNumber <= 100000);
+    function executeWishLogic(
+        uint256 _randomNumber1, /*this number needs to be modded*/
+        uint256 _randomNumber2,
+        address _to,
+        uint256 featuredFiveStarIndex
+    ) public returns (bool) {
+        require(_randomNumber1 >= 1 && _randomNumber1 <= 100000);
 
         fiveStarWishCounter++;
         fourStarWishCounter++;
 
         if (fiveStarWishCounter >= 90) {
-            determineFiveStar(_randomNumber);
+            determineFiveStar(
+                _randomNumber1,
+                _randomNumber2,
+                _to,
+                featuredFiveStarIndex
+            );
             fiveStarWishCounter = 0;
             fourStarWishCounter = 0;
+            return true;
         } else {
             if (fourStarWishCounter % 10 == 0 && fourStarWishCounter != 0) {
-                determineFourStar(_randomNumber);
+                determineFourStar(_randomNumber1);
                 fourStarWishCounter = 0;
+                return true;
             } else {
-                if (_randomNumber <= 600) {
-                    determineFiveStar(_randomNumber);
-                    fiveStarWishCounter = 0;
-                    fourStarWishCounter = 0;
-                } else {
-                    if (_randomNumber > 600 && _randomNumber <= 5700) {
-                        determineFourStar(_randomNumber);
-                        fourStarWishCounter = 0;
-                    } else {
-                        if (_randomNumber > 5700) {
-                            uint256 index = _randomNumber %
-                                getThreeStarListLength();
+                if (_randomNumber1 > 5700) {
+                    uint256 index = _randomNumber1 % getThreeStarListLength();
 
-                            pushWonItem(index, threeStarListOfItems);
+                    pushWonItem(index, threeStarListOfItems);
+                    return true;
+                } else {
+                    if (_randomNumber1 > 600 && _randomNumber1 <= 5700) {
+                        determineFourStar(_randomNumber1);
+                        fourStarWishCounter = 0;
+                        return true;
+                    } else {
+                        if (_randomNumber1 <= 600) {
+                            determineFiveStar(
+                                _randomNumber1,
+                                _randomNumber2,
+                                _to,
+                                featuredFiveStarIndex
+                            );
+                            fiveStarWishCounter = 0;
+                            fourStarWishCounter = 0;
+                            return true;
+                        } else {
+                            revert();
                         }
                     }
                 }
@@ -143,30 +171,49 @@ contract Wish {
         }
     }
 
-    function determineFiveStar(uint256 _randomNumber) internal {
-        if (_randomNumber % 2 == 0 || fiveStarFiftyFifty == true) {
-            itemsWon.push(featuredFiveStar);
+    //uri indexes of standar five stars
+    uint256[] public standardFiveStars;
+
+    function setStandardFiveStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            standardFiveStars.push(indexesToAdd[i]);
+        }
+    }
+
+    function determineFiveStar(
+        uint256 _randomNumber1,
+        uint256 _randomNumber2,
+        address _to,
+        uint256 _URIIndex
+    ) internal {
+        if (_randomNumber1 % 2 == 0 || fiveStarFiftyFifty == true) {
             fiveStarFiftyFifty = false;
             fourStarFiftyFifty = false;
-        } else {
-            uint256 index = _randomNumber % getFiveStarListLength();
 
-            pushWonItem(index, fiveStarListOfItems);
+            targetFactory.mintFeaturedFiveStar(_to, _URIIndex);
+        } else {
             fiveStarFiftyFifty = true;
+            //uint256 index = _randomNumber2 % getFiveStarListLength();
+
+            targetFactory.mintRandomItem(
+                standardFiveStars,
+                _to,
+                _randomNumber2
+            );
         }
     }
 
     function determineFourStar(uint256 _randomNumber) internal {
         if (_randomNumber % 2 == 0 || fourStarFiftyFifty == true) {
+            fourStarFiftyFifty = false;
             uint256 index = _randomNumber % getFeaturedFourStarListLength();
 
             pushWonItem(index, featuredFourStarListOfItems);
-            fourStarFiftyFifty = false;
         } else {
+            fourStarFiftyFifty = true;
             uint256 index = _randomNumber % getFourStarListLength();
 
             pushWonItem(index, fourStarListOfItems);
-            fourStarFiftyFifty = true;
         }
     }
 
