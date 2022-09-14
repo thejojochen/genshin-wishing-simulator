@@ -19,13 +19,13 @@ contract VRFv2Consumer is VRFConsumerBaseV2 {
 
     // Goerli coordinator. For other networks,
     // see https://docs.chain.link/docs/vrf-contracts/#configurations
-    address vrfCoordinator = 0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
+    address vrfCoordinator = 0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed;
 
     // The gas lane to use, which specifies the maximum gas price to bump to.
     // For a list of available gas lanes on each network,
     // see https://docs.chain.link/docs/vrf-contracts/#configurations
     bytes32 keyHash =
-        0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
+        0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f;
 
     // Depends on the number of requested values that you want sent to the
     // fulfillRandomWords() function. Storing each word costs about 20,000 gas,
@@ -44,7 +44,7 @@ contract VRFv2Consumer is VRFConsumerBaseV2 {
 
     uint256[] public s_randomWords;
     uint256 public s_requestId;
-    address public s_owner;
+    address s_owner;
 
     constructor(uint64 subscriptionId) VRFConsumerBaseV2(vrfCoordinator) {
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
@@ -74,26 +74,5 @@ contract VRFv2Consumer is VRFConsumerBaseV2 {
     modifier onlyOwner() {
         require(msg.sender == s_owner);
         _;
-    }
-
-    function getCustomRandomWord(uint256 maxRange)
-        public
-        view
-        returns (uint256)
-    {
-        return (s_randomWords[0] % maxRange) + 1;
-    }
-
-    function addConsumer(address consumerAddress) external onlyOwner {
-        // Add a consumer contract to the subscription.
-        COORDINATOR.addConsumer(s_subscriptionId, consumerAddress);
-    }
-
-    function getSubscriptionID() public view returns (uint64) {
-        return s_subscriptionId;
-    }
-
-    function getMsgSender() public view returns (address) {
-        return msg.sender;
     }
 }
