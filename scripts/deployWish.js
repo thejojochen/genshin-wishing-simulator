@@ -3,7 +3,7 @@ async function main() {
 
   // Start deployment, returning a promise that resolves to a contract object
   const wishContract = await wishContractFactory.deploy(
-    "0x03301a7bf777a8f5c46329ae315f63cfe09f4ec0"
+    "0x6FdcD2dF2C59873DebB80d9eABC10f07EB94d7cF"
   );
   console.log("Contract deployed to address:", wishContract.address);
 }
