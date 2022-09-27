@@ -13,3 +13,4 @@ npx hardhat node
 npx hardhat run scripts/deploy.js
 ```
 # genshin-wish-simulator
+# genshin-wishing-simulator
