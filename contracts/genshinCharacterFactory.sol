@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 //import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
- * @title Creature
- * Creature - a contract for my non-fungible creatures.
+ * MAKE SURE TO ADD EVENTS WHEN MINTED SO WE KNOW WHAT HAPPENED
+ *
  */
 contract genshinCharacterFactory is ERC721 {
     address public verifiedAddress;
@@ -32,6 +32,10 @@ contract genshinCharacterFactory is ERC721 {
 
     function addURI(string memory _newURI) public {
         URIs.push(_newURI);
+    }
+
+    function getURIsLength() public view returns (uint256) {
+        return URIs.length;
     }
 
     function baseTokenURI() public pure returns (string memory) {

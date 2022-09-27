@@ -4,7 +4,7 @@ pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-import "./VRFv2Consumer.sol";
+//import "./VRFv2Consumer.sol";
 import "./genshinCharacterFactory.sol";
 
 //wish object, three parameters (kind of a generic name (item) though)
@@ -31,21 +31,28 @@ contract Wish {
     //uint256 randomNumber = 5800;
     //make sure to add functionality for a second banner/
 
+    /*work on this*/
     //player specific variables
-    uint256 public fiveStarWishCounter = 0;
-    uint256 public fourStarWishCounter = 0;
+    mapping(address => uint) public fiveStarWishCounter;
+    mapping(address => uint) public fourStarWishCounter;
+    mapping(address => bool) public fiveStarFiftyFifty;
+    mapping(address => bool) public fourStarFiftyFifty;
+    // uint256 public fiveStarWishCounter = 0;
+    // uint256 public fourStarWishCounter = 0;
     //bools potentially less gas effecient
-    bool public fiveStarFiftyFifty = false;
-    bool public fourStarFiftyFifty = false;
-    uint256 public playerPrimogemAmount = 160;
-    Item[] public itemsWon;
+    // bool public fiveStarFiftyFifty = false;
+    // bool public fourStarFiftyFifty = false;
+
+    //uint256 public playerPrimogemAmount = 160;
+    //Item[] public itemsWon;
 
     //target VRF consumer
     //VRFv2Consumer public targetVrfContract;
 
     //target factory
-    genshinCharacterFactory public targetFactory =
-        genshinCharacterFactory(0xdC8468BF0d020587E4a010D886b6B96CE59c88f8);
+    genshinCharacterFactory public targetFactory;
+
+    // genshinCharacterFactory(0xdC8468BF0d020587E4a010D886b6B96CE59c88f8);
 
     //intialize VRF consumer (probably not, we will inherit from vrfv2consumer)
     constructor(address _factoryAddr) {
@@ -56,14 +63,15 @@ contract Wish {
     ///////////////testing only////////////////
     ///////////////////////////////////////////
 
+    //notice: MAKE SURE TO FLIP THE VARIABLE ASSIGNMENT TO PROPERLY TEST
     function setFiveStarWishCounter(uint256 _counter) public returns (uint256) {
-        fiveStarWishCounter = _counter;
-        return fiveStarWishCounter;
+        uint newCounter = fiveStarWishCounter[msg.sender];
+        return newCounter;
     }
 
     function setFourStarWishCounter(uint256 _counter) public returns (uint256) {
-        fourStarWishCounter = _counter;
-        return fourStarWishCounter;
+        uint newCounter = fourStarWishCounter[msg.sender];
+        return newCounter;
     }
 
     ///////////////////////////////////////////
@@ -78,42 +86,72 @@ contract Wish {
     //     listOfItems.push(Item(weaponOrCharacter, name, rarity));
     // }
 
-    function createThreeStarItem(
-        string memory weaponOrCharacter,
-        string memory name,
-        uint256 rarity
-    ) public {
-        threeStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    }
+    // function createThreeStarItem(
+    //     string memory weaponOrCharacter,
+    //     string memory name,
+    //     uint256 rarity
+    // ) public {
+    //     threeStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
+    // }
 
-    function createFourStarItem(
-        string memory weaponOrCharacter,
-        string memory name,
-        uint256 rarity
-    ) public {
-        fourStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    }
+    // function createFourStarItem(
+    //     string memory weaponOrCharacter,
+    //     string memory name,
+    //     uint256 rarity
+    // ) public {
+    //     fourStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
+    // }
 
-    function createFeaturedFourStarItem(
-        string memory weaponOrCharacter,
-        string memory name,
-        uint256 rarity
-    ) public {
-        featuredFourStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    }
+    // function createFeaturedFourStarItem(
+    //     string memory weaponOrCharacter,
+    //     string memory name,
+    //     uint256 rarity
+    // ) public {
+    //     featuredFourStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
+    // }
 
-    function createFiveStarItem(
-        string memory weaponOrCharacter,
-        string memory name,
-        uint256 rarity
-    ) public {
-        fiveStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    }
+    // function createFiveStarItem(
+    //     string memory weaponOrCharacter,
+    //     string memory name,
+    //     uint256 rarity
+    // ) public {
+    //     fiveStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
+    // }
 
     // function getRandomNumber() public view returns (uint256) {
     //     return targetContract.s_randomWords(0);
     // }
 
+    uint256 featuredFiveStarCharacterIndexOne;
+    uint256 featuredFiveStarCharacterIndexTwo;
+
+    function setFeaturedFiveStars(uint256 first, uint256 second) public {
+        featuredFiveStarCharacterIndexOne = first;
+        featuredFiveStarCharacterIndexTwo = second;
+    }
+
+    /*work on this*/
+    function wishBanner1(
+        uint256 num1,
+        uint256 num2,
+        address _to
+    ) public {
+        require(
+            executeWishLogic(num1, num2, _to, featuredFiveStarCharacterIndexOne)
+        );
+    }
+
+    function wishBanner2(
+        uint256 num1,
+        uint256 num2,
+        address _to
+    ) public {
+        require(
+            executeWishLogic(num1, num2, _to, featuredFiveStarCharacterIndexTwo)
+        );
+    }
+
+    /*make this function internal soon since there is a wrapper above*/
     function executeWishLogic(
         uint256 _randomNumber1, /*this number needs to be modded*/
         uint256 _randomNumber2,
@@ -122,36 +160,48 @@ contract Wish {
     ) public returns (bool) {
         require(_randomNumber1 >= 1 && _randomNumber1 <= 100000);
 
-        fiveStarWishCounter++;
-        fourStarWishCounter++;
+        fiveStarWishCounter[_to]++;
+        fourStarWishCounter[_to]++;
 
-        if (fiveStarWishCounter >= 90) {
+        // if at five star pity
+        if (fiveStarWishCounter[_to] >= 90) {
             determineFiveStar(
                 _randomNumber1,
                 _randomNumber2,
                 _to,
-                featuredFiveStarIndex
+                featuredFiveStarIndex /* make sure to set this dynamically */
             );
-            fiveStarWishCounter = 0;
-            fourStarWishCounter = 0;
+            fiveStarWishCounter[_to] = 0;
+            fourStarWishCounter[_to] = 0;
             return true;
         } else {
-            if (fourStarWishCounter % 10 == 0 && fourStarWishCounter != 0) {
-                determineFourStar(_randomNumber1);
-                fourStarWishCounter = 0;
+            // if at four star pity
+            if (
+                fourStarWishCounter[_to] % 10 == 0 &&
+                fourStarWishCounter[_to] != 0
+            ) {
+                determineFourStar(_randomNumber1, _randomNumber2, _to);
+                fourStarWishCounter[_to] = 0;
                 return true;
             } else {
+                // most unlucky case, get a random three star item (hehe for all the magic guides)
                 if (_randomNumber1 > 5700) {
-                    uint256 index = _randomNumber1 % getThreeStarListLength();
-
-                    pushWonItem(index, threeStarListOfItems);
+                    //uint256 index = _randomNumber1 % getThreeStarListLength();
+                    targetFactory.mintRandomItem(
+                        standardThreeStars,
+                        _to,
+                        _randomNumber2
+                    );
+                    //pushWonItem(index, threeStarListOfItems);
                     return true;
                 } else {
+                    // got a four star before pity
                     if (_randomNumber1 > 600 && _randomNumber1 <= 5700) {
-                        determineFourStar(_randomNumber1);
-                        fourStarWishCounter = 0;
+                        determineFourStar(_randomNumber1, _randomNumber2, _to);
+                        fourStarWishCounter[_to] = 0;
                         return true;
                     } else {
+                        // got a five star before pity
                         if (_randomNumber1 <= 600) {
                             determineFiveStar(
                                 _randomNumber1,
@@ -159,8 +209,8 @@ contract Wish {
                                 _to,
                                 featuredFiveStarIndex
                             );
-                            fiveStarWishCounter = 0;
-                            fourStarWishCounter = 0;
+                            fiveStarWishCounter[_to] = 0;
+                            fourStarWishCounter[_to] = 0;
                             return true;
                         } else {
                             revert();
@@ -171,12 +221,39 @@ contract Wish {
         }
     }
 
-    //uri indexes of standar five stars
+    //uri indexes of all the types of items
     uint256[] public standardFiveStars;
+    uint256[] public standardFourStars;
+    uint256[] public featuredFourStars;
+    uint256[] public standardThreeStars;
+
+    function standardFiveStarsLength() public view returns (uint256) {
+        return standardFiveStars.length;
+    }
+
+    //delete all elements in the array first
 
     function setStandardFiveStars(uint256[] memory indexesToAdd) public {
         for (uint i = 0; i < indexesToAdd.length; i++) {
             standardFiveStars.push(indexesToAdd[i]);
+        }
+    }
+
+    function setStandardFourStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            standardFourStars.push(indexesToAdd[i]);
+        }
+    }
+
+    function setFeaturedFourStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            featuredFourStars.push(indexesToAdd[i]);
+        }
+    }
+
+    function setStandardThreeStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            standardThreeStars.push(indexesToAdd[i]);
         }
     }
 
@@ -186,13 +263,13 @@ contract Wish {
         address _to,
         uint256 _URIIndex
     ) internal {
-        if (_randomNumber1 % 2 == 0 || fiveStarFiftyFifty == true) {
-            fiveStarFiftyFifty = false;
-            fourStarFiftyFifty = false;
+        if (_randomNumber1 % 2 == 0 || fiveStarFiftyFifty[_to] == true) {
+            fiveStarFiftyFifty[_to] = false;
+            fourStarFiftyFifty[_to] = false;
 
             targetFactory.mintFeaturedFiveStar(_to, _URIIndex);
         } else {
-            fiveStarFiftyFifty = true;
+            fiveStarFiftyFifty[_to] = true;
             //uint256 index = _randomNumber2 % getFiveStarListLength();
 
             targetFactory.mintRandomItem(
@@ -203,88 +280,101 @@ contract Wish {
         }
     }
 
-    function determineFourStar(uint256 _randomNumber) internal {
-        if (_randomNumber % 2 == 0 || fourStarFiftyFifty == true) {
-            fourStarFiftyFifty = false;
-            uint256 index = _randomNumber % getFeaturedFourStarListLength();
+    function determineFourStar(
+        uint256 _randomNumber1,
+        uint256 _randomNumber2,
+        address _to
+    ) internal {
+        if (_randomNumber1 % 2 == 0 || fourStarFiftyFifty[_to] == true) {
+            fourStarFiftyFifty[_to] = false;
+            //uint256 index = _randomNumber % getFeaturedFourStarListLength();
+            targetFactory.mintRandomItem(
+                featuredFourStars,
+                _to,
+                _randomNumber2
+            );
 
-            pushWonItem(index, featuredFourStarListOfItems);
+            //pushWonItem(index, featuredFourStarListOfItems);
         } else {
-            fourStarFiftyFifty = true;
-            uint256 index = _randomNumber % getFourStarListLength();
-
-            pushWonItem(index, fourStarListOfItems);
+            fourStarFiftyFifty[_to] = true;
+            //uint256 index = _randomNumber % getFourStarListLength();
+            targetFactory.mintRandomItem(
+                standardFourStars,
+                _to,
+                _randomNumber2
+            );
+            //pushWonItem(index, fourStarListOfItems);
         }
     }
 
-    function pushWonItem(uint256 index, Item[] memory xStarList) internal {
-        Item memory itemYouWon = xStarList[index];
-        itemsWon.push(
-            Item(
-                itemYouWon.weaponOrCharacter,
-                itemYouWon.name,
-                itemYouWon.rarity
-            )
-        );
-    }
+    // function pushWonItem(uint256 index, Item[] memory xStarList) internal {
+    //     Item memory itemYouWon = xStarList[index];
+    //     itemsWon.push(
+    //         Item(
+    //             itemYouWon.weaponOrCharacter,
+    //             itemYouWon.name,
+    //             itemYouWon.rarity
+    //         )
+    //     );
+    // }
 
     ////////////////////
     //getter functions
     ////////////////////
 
-    function getThreeStarListLength() public view returns (uint256) {
-        return threeStarListOfItems.length;
-    }
+    // function getThreeStarListLength() public view returns (uint256) {
+    //     return threeStarListOfItems.length;
+    // }
 
-    function getFourStarListLength() public view returns (uint256) {
-        return fourStarListOfItems.length;
-    }
+    // function getFourStarListLength() public view returns (uint256) {
+    //     return fourStarListOfItems.length;
+    // }
 
-    function getFeaturedFourStarListLength() public view returns (uint256) {
-        return featuredFourStarListOfItems.length;
-    }
+    // function getFeaturedFourStarListLength() public view returns (uint256) {
+    //     return featuredFourStarListOfItems.length;
+    // }
 
-    function getFiveStarListLength() public view returns (uint256) {
-        return fiveStarListOfItems.length;
-    }
+    // function getFiveStarListLength() public view returns (uint256) {
+    //     return fiveStarListOfItems.length;
+    // }
 
-    function viewThreeStarItemList(uint256 index)
-        public
-        view
-        returns (string memory)
-    {
-        Item memory temp = threeStarListOfItems[index];
-        string memory name = temp.name;
-        return name;
-    }
+    // function viewThreeStarItemList(uint256 index)
+    //     public
+    //     view
+    //     returns (string memory)
+    // {
+    //     Item memory temp = threeStarListOfItems[index];
+    //     string memory name = temp.name;
+    //     return name;
+    // }
 
-    function viewFourStarItemList(uint256 index)
-        public
-        view
-        returns (string memory)
-    {
-        Item memory temp = fourStarListOfItems[index];
-        string memory name = temp.name;
-        return name;
-    }
+    // function viewFourStarItemList(uint256 index)
+    //     public
+    //     view
+    //     returns (string memory)
+    // {
+    //     Item memory temp = fourStarListOfItems[index];
+    //     string memory name = temp.name;
+    //     return name;
+    // }
 
-    function viewFeaturedFourStarItemList(uint256 index)
-        public
-        view
-        returns (string memory)
-    {
-        Item memory temp = featuredFourStarListOfItems[index];
-        string memory name = temp.name;
-        return name;
-    }
+    // function viewFeaturedFourStarItemList(uint256 index)
+    //     public
+    //     view
+    //     returns (string memory)
+    // {
+    //     Item memory temp = featuredFourStarListOfItems[index];
+    //     string memory name = temp.name;
+    //     return name;
+    // }
 
-    function viewFiveStarItemList(uint256 index)
-        public
-        view
-        returns (string memory)
-    {
-        Item memory temp = fiveStarListOfItems[index];
-        string memory name = temp.name;
-        return name;
-    }
+    // function viewFiveStarItemList(uint256 index)
+    //     public
+    //     view
+    //     returns (string memory)
+    // {
+    //     Item memory temp = fiveStarListOfItems[index];
+    //     string memory name = temp.name;
+    //     return name;
+    // }
 }
