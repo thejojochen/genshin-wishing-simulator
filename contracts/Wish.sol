@@ -63,67 +63,27 @@ contract Wish {
     ///////////////testing only////////////////
     ///////////////////////////////////////////
 
-    //notice: MAKE SURE TO FLIP THE VARIABLE ASSIGNMENT TO PROPERLY TEST
-    function setFiveStarWishCounter(uint256 _counter) public returns (uint256) {
-        uint newCounter = fiveStarWishCounter[msg.sender];
-        return newCounter;
+    function setFiveStarWishCounter(uint256 _counter)
+        public
+    /*returns (uint256)*/
+    {
+        //uint newCounter = fiveStarWishCounter[msg.sender];
+        fiveStarWishCounter[msg.sender] = _counter;
+        //return newCounter;
     }
 
-    function setFourStarWishCounter(uint256 _counter) public returns (uint256) {
-        uint newCounter = fourStarWishCounter[msg.sender];
-        return newCounter;
+    function setFourStarWishCounter(uint256 _counter) public {
+        // uint newCounter = fourStarWishCounter[msg.sender];
+        fourStarWishCounter[msg.sender] = _counter;
+        //return newCounter;
     }
 
     ///////////////////////////////////////////
     ///////////////testing only////////////////
     ///////////////////////////////////////////
 
-    // function createItem(
-    //     string memory weaponOrCharacter,
-    //     string memory name,
-    //     uint256 rarity
-    // ) public {
-    //     listOfItems.push(Item(weaponOrCharacter, name, rarity));
-    // }
-
-    // function createThreeStarItem(
-    //     string memory weaponOrCharacter,
-    //     string memory name,
-    //     uint256 rarity
-    // ) public {
-    //     threeStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    // }
-
-    // function createFourStarItem(
-    //     string memory weaponOrCharacter,
-    //     string memory name,
-    //     uint256 rarity
-    // ) public {
-    //     fourStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    // }
-
-    // function createFeaturedFourStarItem(
-    //     string memory weaponOrCharacter,
-    //     string memory name,
-    //     uint256 rarity
-    // ) public {
-    //     featuredFourStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    // }
-
-    // function createFiveStarItem(
-    //     string memory weaponOrCharacter,
-    //     string memory name,
-    //     uint256 rarity
-    // ) public {
-    //     fiveStarListOfItems.push(Item(weaponOrCharacter, name, rarity));
-    // }
-
-    // function getRandomNumber() public view returns (uint256) {
-    //     return targetContract.s_randomWords(0);
-    // }
-
-    uint256 featuredFiveStarCharacterIndexOne;
-    uint256 featuredFiveStarCharacterIndexTwo;
+    uint256 public featuredFiveStarCharacterIndexOne;
+    uint256 public featuredFiveStarCharacterIndexTwo;
 
     function setFeaturedFiveStars(uint256 first, uint256 second) public {
         featuredFiveStarCharacterIndexOne = first;
@@ -306,75 +266,4 @@ contract Wish {
             //pushWonItem(index, fourStarListOfItems);
         }
     }
-
-    // function pushWonItem(uint256 index, Item[] memory xStarList) internal {
-    //     Item memory itemYouWon = xStarList[index];
-    //     itemsWon.push(
-    //         Item(
-    //             itemYouWon.weaponOrCharacter,
-    //             itemYouWon.name,
-    //             itemYouWon.rarity
-    //         )
-    //     );
-    // }
-
-    ////////////////////
-    //getter functions
-    ////////////////////
-
-    // function getThreeStarListLength() public view returns (uint256) {
-    //     return threeStarListOfItems.length;
-    // }
-
-    // function getFourStarListLength() public view returns (uint256) {
-    //     return fourStarListOfItems.length;
-    // }
-
-    // function getFeaturedFourStarListLength() public view returns (uint256) {
-    //     return featuredFourStarListOfItems.length;
-    // }
-
-    // function getFiveStarListLength() public view returns (uint256) {
-    //     return fiveStarListOfItems.length;
-    // }
-
-    // function viewThreeStarItemList(uint256 index)
-    //     public
-    //     view
-    //     returns (string memory)
-    // {
-    //     Item memory temp = threeStarListOfItems[index];
-    //     string memory name = temp.name;
-    //     return name;
-    // }
-
-    // function viewFourStarItemList(uint256 index)
-    //     public
-    //     view
-    //     returns (string memory)
-    // {
-    //     Item memory temp = fourStarListOfItems[index];
-    //     string memory name = temp.name;
-    //     return name;
-    // }
-
-    // function viewFeaturedFourStarItemList(uint256 index)
-    //     public
-    //     view
-    //     returns (string memory)
-    // {
-    //     Item memory temp = featuredFourStarListOfItems[index];
-    //     string memory name = temp.name;
-    //     return name;
-    // }
-
-    // function viewFiveStarItemList(uint256 index)
-    //     public
-    //     view
-    //     returns (string memory)
-    // {
-    //     Item memory temp = fiveStarListOfItems[index];
-    //     string memory name = temp.name;
-    //     return name;
-    // }
 }
