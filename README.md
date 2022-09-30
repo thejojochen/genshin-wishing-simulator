@@ -15,3 +15,4 @@ npx hardhat run scripts/deploy.js
 # genshin-wish-simulator
 # genshin-wishing-simulator
 # Genshin-Wish-Simulator
+# Genshin-Wish-Simulator
