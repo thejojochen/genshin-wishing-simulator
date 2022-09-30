@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 //import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
- * MAKE SURE TO ADD EVENTS WHEN MINTED SO WE KNOW WHAT HAPPENED
+ * MAKE SURE TO ADD EVENTS WHEN MINTED SO WE KNOW WHAT HAPPENED !
  *
  */
 contract genshinCharacterFactory is ERC721 {
