@@ -5,7 +5,16 @@ async function main() {
 
   // Start deployment, returning a promise that resolves to a contract object
   const factoryContract = await factoryFactory.deploy("test", "TEST");
-  console.log("Contract deployed to address:", factoryContract.address);
+  console.log("Factory Contract deployed to address:", factoryContract.address);
+
+  const wishContractFactory = await ethers.getContractFactory("Wish");
+
+  // Start deployment, returning a promise that resolves to a contract object
+  const wishContract = await wishContractFactory.deploy(
+    1774,
+    factoryContract.address
+  );
+  console.log("Wish Contract deployed to address:", wishContract.address);
 }
 
 main()

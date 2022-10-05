@@ -22,25 +22,22 @@ const signer = new ethers.Wallet(PRIVATE_KEY, alchemyProvider);
 //const wishABI = require("bignumber.js");
 
 async function main() {
-  // const URIstorage = [
-  //   {
-  //     name: "Arataki Itto",
-  //     metadataURI: "test URI 1",
-  //   },
-  //   {
-  //     name: "Arataki Itto",
-  //     metadataURI: "test URI 2 ",
-  //   },
-  //   {
-  //     name: "Arataki Itto",
-  //     metadataURI: "test URI 3",
-  //   },
-  //   {
-  //     name: "Arataki Itto",
-  //     metadataURI: "test URI 4",
-  //   },
-  // ];
+  const factoryFactory = await ethers.getContractFactory(
+    "genshinCharacterFactory"
+  );
 
+  // Start deployment, returning a promise that resolves to a contract object
+  const factoryContract = await factoryFactory.deploy("test", "TEST");
+  console.log("Factory Contract deployed to address:", factoryContract.address);
+
+  const wishContractFactory = await ethers.getContractFactory("Wish");
+
+  // Start deployment, returning a promise that resolves to a contract object
+  const wishContract = await wishContractFactory.deploy(
+    1774,
+    factoryContract.address
+  );
+  console.log("Wish Contract deployed to address:", wishContract.address);
   /*const genshinCharacterFactoryFactory = await ethers.getContractFactory(
     "genshinCharacterFactory"
   );
@@ -52,18 +49,18 @@ async function main() {
     "Factory Contract deployed to address:" + factoryContract.address
   );*/
 
-  const factoryContract = new ethers.Contract(
-    FACTORY_CONTRACT_ADDRESS,
-    factoryABI.abi,
-    signer
-  );
+  // const factoryContract = new ethers.Contract(
+  //   FACTORY_CONTRACT_ADDRESS,
+  //   factoryABI.abi,
+  //   signer
+  // );
 
-  console.log("factory contract at: " + factoryContract.address);
-  const wishContract = new ethers.Contract(
-    WISH_CONTRACT_ADDRESS,
-    wishABI.abi,
-    signer
-  );
+  // console.log("factory contract at: " + factoryContract.address);
+  // const wishContract = new ethers.Contract(
+  //   WISH_CONTRACT_ADDRESS,
+  //   wishABI.abi,
+  //   signer
+  // );
   console.log("wish contract at:" + wishContract.address);
 
   console.log("about to add " + URIs.length + " strings to URI array");
@@ -71,9 +68,9 @@ async function main() {
   //console.log("adding one to array");
   //await factoryContract.addURI(URIs[0]);
 
-  // for (let i = 0; i < URIs.length; i++) {
-  //   await factoryContract.addURI(URIs[i]);
-  // }
+  for (let i = 0; i < URIs.length; i++) {
+    await factoryContract.addURI(URIs[i]);
+  }
 
   const arraylength = await factoryContract.getURIsLength();
 
