@@ -53,11 +53,11 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     uint32 callbackGasLimit = 1000000;
 
     // The default is 3, but you can set this higher.
-    uint16 requestConfirmations = 3;
+    uint16 public constant requestConfirmations = 3;
 
     // For this example, retrieve 2 random values in one request.
     // Cannot exceed VRFCoordinatorV2.MAX_NUM_WORDS.
-    uint32 numWords = 2;
+    uint32 public constant numWords = 2;
 
     /**
      * HARDCODED FOR GOERLI
@@ -66,6 +66,22 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
 
     //target factory
     genshinCharacterFactory public targetFactory;
+
+    //indexes of the characters and items
+    uint256[] public standardFiveStars;
+    uint256[] public standardFourStars;
+    uint256[] public featuredFourStars;
+    uint256[] public standardThreeStars;
+
+    //player specific variables
+    mapping(address => uint) public fiveStarWishCounter;
+    mapping(address => uint) public fourStarWishCounter;
+    mapping(address => bool) public fiveStarFiftyFifty;
+    mapping(address => bool) public fourStarFiftyFifty;
+
+    //indexes of featured five stars
+    uint256 public featuredFiveStarCharacterIndexOne;
+    uint256 public featuredFiveStarCharacterIndexTwo;
 
     constructor(uint64 subscriptionId, address _factoryAddr)
         VRFConsumerBaseV2(0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed)
@@ -167,11 +183,6 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     //make sure to add functionality for a second banner/
 
     /*work on this*/
-    //player specific variables
-    mapping(address => uint) public fiveStarWishCounter;
-    mapping(address => uint) public fourStarWishCounter;
-    mapping(address => bool) public fiveStarFiftyFifty;
-    mapping(address => bool) public fourStarFiftyFifty;
 
     // uint256 public fiveStarWishCounter = 0;
     // uint256 public fourStarWishCounter = 0;
@@ -211,9 +222,6 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     ///////////////////////////////////////////
     ///////////////testing only////////////////
     ///////////////////////////////////////////
-
-    uint256 public featuredFiveStarCharacterIndexOne;
-    uint256 public featuredFiveStarCharacterIndexTwo;
 
     function setFeaturedFiveStars(uint256 first, uint256 second) public {
         featuredFiveStarCharacterIndexOne = first;
@@ -314,42 +322,6 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
         }
     }
 
-    //uri indexes of all the types of items
-    uint256[] public standardFiveStars;
-    uint256[] public standardFourStars;
-    uint256[] public featuredFourStars;
-    uint256[] public standardThreeStars;
-
-    function standardFiveStarsLength() public view returns (uint256) {
-        return standardFiveStars.length;
-    }
-
-    //delete all elements in the array first
-
-    function setStandardFiveStars(uint256[] memory indexesToAdd) public {
-        for (uint i = 0; i < indexesToAdd.length; i++) {
-            standardFiveStars.push(indexesToAdd[i]);
-        }
-    }
-
-    function setStandardFourStars(uint256[] memory indexesToAdd) public {
-        for (uint i = 0; i < indexesToAdd.length; i++) {
-            standardFourStars.push(indexesToAdd[i]);
-        }
-    }
-
-    function setFeaturedFourStars(uint256[] memory indexesToAdd) public {
-        for (uint i = 0; i < indexesToAdd.length; i++) {
-            featuredFourStars.push(indexesToAdd[i]);
-        }
-    }
-
-    function setStandardThreeStars(uint256[] memory indexesToAdd) public {
-        for (uint i = 0; i < indexesToAdd.length; i++) {
-            standardThreeStars.push(indexesToAdd[i]);
-        }
-    }
-
     function determineFiveStar(
         uint256 _randomNumber1,
         uint256 _randomNumber2,
@@ -397,6 +369,37 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
                 _randomNumber2
             );
             //pushWonItem(index, fourStarListOfItems);
+        }
+    }
+
+    // add getters of other arrays as well
+    function standardFiveStarsLength() public view returns (uint256) {
+        return standardFiveStars.length;
+    }
+
+    //delete all elements in the array first
+
+    function setStandardFiveStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            standardFiveStars.push(indexesToAdd[i]);
+        }
+    }
+
+    function setStandardFourStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            standardFourStars.push(indexesToAdd[i]);
+        }
+    }
+
+    function setFeaturedFourStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            featuredFourStars.push(indexesToAdd[i]);
+        }
+    }
+
+    function setStandardThreeStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < indexesToAdd.length; i++) {
+            standardThreeStars.push(indexesToAdd[i]);
         }
     }
 }

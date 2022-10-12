@@ -75,18 +75,6 @@ contract genshinCharacterFactory is ERC721 {
         return moddedIndex;
     }
 
-    // function condensedFunction(uint256 randomNumber, int[] targetArr, address _to) public {
-    //   //uint256 randomNumber = requestRandomWords();
-    //   //uint256 moddedNumber = randomNumber % targetArr.length + 0;
-    //   uint256 _URIIndex =  randomNumber % targetArr.length + 0;
-
-    //   uint256 _tokenId = tokenIdCounter;
-    //   _mint(_to, tokenId);
-    //   tokenIdToURI[tokenId] = URIs[URIIndex];
-    //   tokenIdCounter = tokenIdCounter + 1;
-
-    // }
-
     function tokenURI(uint256 tokenId)
         public
         view

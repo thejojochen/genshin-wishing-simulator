@@ -130,7 +130,7 @@ async function main() {
   // console.log(convertedParams);
   // wishContract.setStandardFiveStars(convertedParams);
 
-  //   wishContract.setStandardFourStars([1, 2]);
+  //wishContract.setStandardFourStars([1, 2]);
   //   wishContract.setFeaturedFourStars([1, 2]);
   //   wishContract.setFeaturedFourStars([1, 2]);
 
