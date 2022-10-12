@@ -13,11 +13,7 @@ import "./genshinCharacterFactory.sol";
 contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     event RequestSent(uint256 requestId, uint32 numWords);
     event RequestFulfilled(uint256 requestId, uint256[] randomWords);
-    event BannerExecuted(
-        uint256 randomNumberOne,
-        uint256 randomNumberTwo,
-        address sender
-    );
+    event BannerExecuted(address indexed sender, uint8 wishId);
 
     struct RequestStatus {
         bool fulfilled; // whether the request has been successfully fulfilled
@@ -120,6 +116,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
         requestIds.push(requestId);
         lastRequestId = requestId;
         emit RequestSent(requestId, numWords);
+        emit BannerExecuted(msg.sender, _wishId);
         return requestId;
     }
 
@@ -237,7 +234,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
         require(
             executeWishLogic(num1, num2, _to, featuredFiveStarCharacterIndexOne)
         );
-        emit BannerExecuted(num1, num2, _to);
+
         return true;
     }
 
