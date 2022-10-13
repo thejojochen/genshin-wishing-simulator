@@ -6,7 +6,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 //import "./consumer.sol";
-import "./genshinCharacterFactory.sol";
+import "./GenshinGachaFactory.sol";
 
 //wish object, three parameters (kind of a generic name (item) though)
 /*is VRFv2Consumer*/
@@ -49,10 +49,12 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     uint32 callbackGasLimit = 1000000;
 
     // The default is 3, but you can set this higher.
+    //change to upercase
     uint16 public constant requestConfirmations = 3;
 
     // For this example, retrieve 2 random values in one request.
     // Cannot exceed VRFCoordinatorV2.MAX_NUM_WORDS.
+    //change to uppercase
     uint32 public constant numWords = 2;
 
     /**
@@ -61,9 +63,9 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
      */
 
     //target factory
-    genshinCharacterFactory public targetFactory;
+    GenshinGachaFactory public targetFactory;
 
-    //indexes of the characters and items
+    //indexes of the characters and items, can be changed by admin
     uint256[] public standardFiveStars;
     uint256[] public standardFourStars;
     uint256[] public featuredFourStars;
@@ -72,6 +74,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     //player specific variables
     mapping(address => uint) public fiveStarWishCounter;
     mapping(address => uint) public fourStarWishCounter;
+    //bools potentially less gas effecient, but more understandable
     mapping(address => bool) public fiveStarFiftyFifty;
     mapping(address => bool) public fourStarFiftyFifty;
 
@@ -87,14 +90,14 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
             0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed
         );
         s_subscriptionId = subscriptionId;
-        targetFactory = genshinCharacterFactory(_factoryAddr);
+        targetFactory = GenshinGachaFactory(_factoryAddr);
     }
 
     // Assumes the subscription is funded sufficiently.
 
     function requestRandomWords(uint8 _wishId)
         external
-        onlyOwner
+        onlyOwner // check imported module from chainlink
         returns (uint256 requestId)
     {
         // Will revert if subscription is not set and funded.
@@ -136,6 +139,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
 
         RequestStatus memory request = s_requests[_requestId];
 
+        //possible add functionality for ten pull
         uint256 moddedNumber = (request.randomWords[0] % 100000) + 1;
         uint256 randomNumber = request.randomWords[1];
         address sender = request.sender;
@@ -165,8 +169,6 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     }
 
     bool public initialized;
-
-    //to do: group variables into initialized and dynamic, add mapping player => dynamic variable
 
     //initizlied variables, can be changed by admin
     //Item[] public listOfItems;
@@ -251,7 +253,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
 
     /*make this function internal soon since there is a wrapper above*/
     function executeWishLogic(
-        uint256 _randomNumber1, /*this number needs to be modded*/
+        uint256 _randomNumber1, /*this number is modded*/
         uint256 _randomNumber2,
         address _to,
         uint256 featuredFiveStarIndex
@@ -284,13 +286,12 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
             } else {
                 // most unlucky case, get a random three star item (hehe for all the magic guides)
                 if (_randomNumber1 > 5700) {
-                    //uint256 index = _randomNumber1 % getThreeStarListLength();
                     targetFactory.mintRandomItem(
                         standardThreeStars,
                         _to,
                         _randomNumber2
                     );
-                    //pushWonItem(index, threeStarListOfItems);
+
                     return true;
                 } else {
                     // got a four star before pity
@@ -332,7 +333,6 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
             targetFactory.mintFeaturedFiveStar(_to, _URIIndex);
         } else {
             fiveStarFiftyFifty[_to] = true;
-            //uint256 index = _randomNumber2 % getFiveStarListLength();
 
             targetFactory.mintRandomItem(
                 standardFiveStars,
@@ -349,52 +349,73 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     ) internal {
         if (_randomNumber1 % 2 == 0 || fourStarFiftyFifty[_to] == true) {
             fourStarFiftyFifty[_to] = false;
-            //uint256 index = _randomNumber % getFeaturedFourStarListLength();
+
             targetFactory.mintRandomItem(
                 featuredFourStars,
                 _to,
                 _randomNumber2
             );
-
-            //pushWonItem(index, featuredFourStarListOfItems);
         } else {
             fourStarFiftyFifty[_to] = true;
-            //uint256 index = _randomNumber % getFourStarListLength();
+
             targetFactory.mintRandomItem(
                 standardFourStars,
                 _to,
                 _randomNumber2
             );
-            //pushWonItem(index, fourStarListOfItems);
         }
     }
 
-    // add getters of other arrays as well
+    // add getters of other arrays as well (done)
     function standardFiveStarsLength() public view returns (uint256) {
         return standardFiveStars.length;
     }
 
-    //delete all elements in the array first
+    function standardFourStarsLength() public view returns (uint256) {
+        return standardFourStars.length;
+    }
+
+    function featuredFourStarsLength() public view returns (uint256) {
+        return featuredFourStars.length;
+    }
+
+    function standardThreeStarsLength() public view returns (uint256) {
+        return standardThreeStars.length;
+    }
+
+    //delete all elements in the array first, then add the array of indexes
 
     function setStandardFiveStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < standardFiveStars.length; ++i) {
+            standardFiveStars[i] = 0;
+        }
         for (uint i = 0; i < indexesToAdd.length; i++) {
             standardFiveStars.push(indexesToAdd[i]);
         }
     }
 
     function setStandardFourStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < standardFourStars.length; ++i) {
+            standardFourStars[i] = 0;
+        }
         for (uint i = 0; i < indexesToAdd.length; i++) {
             standardFourStars.push(indexesToAdd[i]);
         }
     }
 
     function setFeaturedFourStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < featuredFourStars.length; ++i) {
+            featuredFourStars[i] = 0;
+        }
         for (uint i = 0; i < indexesToAdd.length; i++) {
             featuredFourStars.push(indexesToAdd[i]);
         }
     }
 
     function setStandardThreeStars(uint256[] memory indexesToAdd) public {
+        for (uint i = 0; i < standardThreeStars.length; ++i) {
+            standardThreeStars[i] = 0;
+        }
         for (uint i = 0; i < indexesToAdd.length; i++) {
             standardThreeStars.push(indexesToAdd[i]);
         }
