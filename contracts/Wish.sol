@@ -35,6 +35,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     uint256 public lastRequestId;
 
     // The gas lane to use, which specifies the maximum gas price to bump to.
+
     // For a list of available gas lanes on each network,
     // see https://docs.chain.link/docs/vrf/v2/subscription/supported-networks/#configurations
     bytes32 keyHash =
@@ -170,35 +171,6 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
 
     bool public initialized;
 
-    //initizlied variables, can be changed by admin
-    //Item[] public listOfItems;
-    // Item[] public threeStarListOfItems;
-    // Item[] public fourStarListOfItems;
-    // Item[] public featuredFourStarListOfItems;
-    // Item[] public fiveStarListOfItems;
-    // Item public featuredFiveStar = Item("g", "g", 5); //make sure to add functionality for a second banner
-
-    //uint256 randomNumber = 5800;
-    //make sure to add functionality for a second banner/
-
-    /*work on this*/
-
-    // uint256 public fiveStarWishCounter = 0;
-    // uint256 public fourStarWishCounter = 0;
-    //bools potentially less gas effecient
-    // bool public fiveStarFiftyFifty = false;
-    // bool public fourStarFiftyFifty = false;
-
-    //uint256 public playerPrimogemAmount = 160;
-    //Item[] public itemsWon;
-
-    //target VRF consumer
-    //VRFv2Consumer public targetVrfContract;
-
-    // genshinCharacterFactory(0xdC8468BF0d020587E4a010D886b6B96CE59c88f8);
-
-    //intialize VRF consumer (probably not, we will inherit from vrfv2consumer)
-
     ///////////////////////////////////////////
     ///////////////testing only////////////////
     ///////////////////////////////////////////
@@ -222,6 +194,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
     ///////////////testing only////////////////
     ///////////////////////////////////////////
 
+    //bad access control
     function setFeaturedFiveStars(uint256 first, uint256 second) public {
         featuredFiveStarCharacterIndexOne = first;
         featuredFiveStarCharacterIndexTwo = second;
@@ -383,7 +356,7 @@ contract Wish is VRFConsumerBaseV2, ConfirmedOwner {
         return standardThreeStars.length;
     }
 
-    //delete all elements in the array first, then add the array of indexes
+    //deletes all elements in the array first, then add the array of indexes
 
     function setStandardFiveStars(uint256[] memory indexesToAdd) public {
         for (uint i = 0; i < standardFiveStars.length; ++i) {

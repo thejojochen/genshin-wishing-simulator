@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+//maybe try to integrate openzeppelin ownable instead of my custom simple modifier
+
 /**
  * @title NFT factory which mints genshin characters and weapons as ERC 721 NFTS
  * @author soumetsu

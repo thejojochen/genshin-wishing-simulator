@@ -4,11 +4,11 @@ const { URIs } = require("../URIs.js");
 //const { uploadImagesToPinata } = require("../pinatautility/uploadToPinata");
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const FACTORY_CONTRACT_ADDRESS = process.env.FACTORY_CONTRACT_ADDRESS;
-const WISH_CONTRACT_ADDRESS = process.env.WISH_CONTRACT_ADDRESS;
+//const FACTORY_CONTRACT_ADDRESS = process.env.FACTORY_CONTRACT_ADDRESS;
+//const WISH_CONTRACT_ADDRESS = process.env.WISH_CONTRACT_ADDRESS;
 
-const factoryABI = require("../artifacts/contracts/genshinCharacterFactory.sol/genshinCharacterFactory.json");
-const wishABI = require("../artifacts/contracts/Wish.sol/Wish.json");
+//const factoryABI = require("../artifacts/contracts/genshinCharacterFactory.sol/genshinCharacterFactory.json");
+//const wishABI = require("../artifacts/contracts/Wish.sol/Wish.json");
 
 const alchemyProvider = new ethers.providers.AlchemyProvider(
   (network = "maticmum"),
@@ -22,22 +22,22 @@ const signer = new ethers.Wallet(PRIVATE_KEY, alchemyProvider);
 //const wishABI = require("bignumber.js");
 
 async function main() {
-  const factoryFactory = await ethers.getContractFactory(
-    "genshinCharacterFactory"
-  );
+  const factoryFactory = await ethers.getContractFactory("GenshinGachaFactory");
 
-  // Start deployment, returning a promise that resolves to a contract object
   const factoryContract = await factoryFactory.deploy("test", "TEST");
   console.log("Factory Contract deployed to address:", factoryContract.address);
 
   const wishContractFactory = await ethers.getContractFactory("Wish");
 
-  // Start deployment, returning a promise that resolves to a contract object
   const wishContract = await wishContractFactory.deploy(
     1774,
     factoryContract.address
   );
   console.log("Wish Contract deployed to address:", wishContract.address);
+
+  await factoryContract.initialize(wishContract.address);
+  console.log("initialization complete ");
+
   /*const genshinCharacterFactoryFactory = await ethers.getContractFactory(
     "genshinCharacterFactory"
   );
@@ -61,7 +61,7 @@ async function main() {
   //   wishABI.abi,
   //   signer
   // );
-  console.log("wish contract at:" + wishContract.address);
+  //console.log("wish contract at:" + wishContract.address);
 
   console.log("about to add " + URIs.length + " strings to URI array");
 
@@ -77,6 +77,10 @@ async function main() {
   for (let i = 0; i < arraylength; i++) {
     console.log(i + ": " + (await factoryContract.URIs(i)));
   }
+
+  // await wishContract.setFeaturedFiveStars(1, 2);
+  // await wishContract.setStandardFiveStars([3, 4, 5, 6]);
+  // console.log(await wishContract.standardFiveStarsLength());
 
   ///////////upload to pinata////////////
   // uploadImagesToPinata();
