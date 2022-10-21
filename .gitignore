@@ -9,7 +9,7 @@ typechain-types
 cache
 artifacts
 
-NOTINUSEFACTORY.sol
+NOTINUSEFACTORY
 
 deployFactory.js
 
