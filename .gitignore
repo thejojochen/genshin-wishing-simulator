@@ -11,5 +11,5 @@ artifacts
 
 NOTINUSEFACTORY
 
-deployFactory.js
+scripts/deployFactory.js
 
