@@ -11,5 +11,4 @@ Core contracts: Wish.sol, GenshinGachaFactory.sol
 
 Stack/Integrations: Solidity, Hardhat, Ethers.js, Waffle, Chainlink VRF, Pinata, OpenSea 
 
-```
 
